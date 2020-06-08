@@ -20,11 +20,11 @@ most_recent = true
 
 resource "aws_instance" "web" {
   ami           = data.aws_ami.centos7.id
-  instance_type = "t2.micro"
-  key_name      = "centos7"
-  
+  instance_type = var.instance_type
+  key_name      = "key_centos7"
+
   tags = {
-    Name        = "Centos.dz3part2"
-  }
+    name        = terraform.workspace
+  }  
 }
 
