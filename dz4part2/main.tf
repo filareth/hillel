@@ -102,7 +102,7 @@ provisioner "file" {
 # выполнение на поднятом инстансе
 provisioner "remote-exec" {
     inline = [
-        "ssh-add /home/filareth/.ssh/key_centos.pem"
+        "ssh-add /home/filareth/.ssh/key_centos.pem",
         "chmod +x /tmp/script.sh",
         "sudo /tmp/script.sh args",
       ] 
