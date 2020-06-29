@@ -1,7 +1,6 @@
 ############################################################################
-# ПАРАМЕТРЫ БЕЗОПАСНОСТИ
+# SECURITY GROUP (allow ssh, http, https)
 ############################################################################
-
 resource "aws_security_group" "allow_ssh" {
   name        = "ssh, http, https"
   description = "Allow ssh inbound traffic"
