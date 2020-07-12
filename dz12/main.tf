@@ -79,6 +79,7 @@ resource "aws_security_group" "allow_ssh" {
 # INSTANCE
 ############################################################################
 resource "aws_instance" "centos7" {
+  count         = "${var.number_of_instances}"
   ami           = data.aws_ami.centos7.id
   instance_type = "t2.micro"
   key_name      = "key_centos"
@@ -88,4 +89,3 @@ resource "aws_instance" "centos7" {
     Name = "Centos"
   }
 }
-
