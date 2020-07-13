@@ -21,7 +21,7 @@ most_recent = true
 ############################################################################
 # SECURITY GROUP
 ############################################################################
-resource "aws_security_group" "allow_ssh" {
+resource "aws_security_group" "allow_ssh_http_https" {
   name        = "ssh, http, https"
   description = "Allow ssh inbound traffic"
 
@@ -79,13 +79,13 @@ resource "aws_security_group" "allow_ssh" {
 # INSTANCE
 ############################################################################
 resource "aws_instance" "centos7" {
-  count         = "${var.number_of_instances}"
   ami           = data.aws_ami.centos7.id
   instance_type = "t2.micro"
   key_name      = "key_centos"
-  vpc_security_group_ids = ["${aws_security_group.allow_ssh.id}"]
+  subnet_id     = "$var.aws-subnet-public-A}"
+  vpc_security_group_ids = ["${aws_security_group.allow_ssh_http_https.id}"]
 
   tags = {
-    Name = "Centos"
+    Name = "Centos full"
   }
 }
