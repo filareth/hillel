@@ -34,15 +34,15 @@ resource "aws_internet_gateway" "gateway" {
 # резервирует статический внешний IP адрес, чтоб наши сервера выходили в интернет всегда с одного адреса
 resource "aws_eip" "eip" {
   vpc                   = true
-  #depends_on           = ["aws_internet_gateway.gateway"]
+  depends_on           = ["aws_internet_gateway.gateway"]
 }
 
 ## NAT gateway
 # создает NAT шлюз, который будет NAT'ить исходящие соединения (идет привязка к публичной подсети и внешнему IP, он будет создан только после интернет шлюза
 resource "aws_nat_gateway" "nat" {
     allocation_id = aws_eip.eip.id
-    subnet_id           = aws_subnet.aws-subnet-public.id
-    #depends_on         = ["aws_internet_gateway.gateway"]
+    subnet_id           = aws_subnet.aws-subnet-private.id
+    depends_on         = ["aws_internet_gateway.gateway"]
     tags = {
       Name              = "NAT"
     }

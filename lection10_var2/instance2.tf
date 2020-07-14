@@ -48,7 +48,6 @@ resource "aws_instance" "ubuntu" {
   ami           = data.aws_ami.centos7.id
   instance_type = "t2.micro"
   key_name      = "key_centos"
-  #vpc_id        = "${aws_vpc.HillelVPC.id}"
   subnet_id     = aws_subnet.aws-subnet-private.id
   vpc_security_group_ids = ["${aws_security_group.allow_ssh.id}"]
 
