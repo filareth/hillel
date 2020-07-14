@@ -1,15 +1,15 @@
 data "aws_ami" "ubuntu" {
   most_recent = true
-  owners = ["099720109477"]
+  owners      = ["099720109477"]
 
   filter {
-      name   = "name"
-      values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
+      name    = "name"
+      values  = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
   }
 
   filter {
-      name   = "virtualization-type"
-      values = ["hvm"]
+      name    = "virtualization-type"
+      values  = ["hvm"]
   }
 }
 
@@ -17,8 +17,8 @@ data "aws_ami" "ubuntu" {
 # SECURITY GROUP
 ############################################################################
 resource "aws_security_group" "allow_ssh" {
-  name        = "ssh"
-  description = "Allow ssh inbound traffic"
+  name          = "ssh"
+  description   = "Allow ssh inbound traffic"
 
   ingress {
     description = "TLS from VPC"
@@ -40,8 +40,6 @@ resource "aws_security_group" "allow_ssh" {
   }
 }
 
-
-
 ############################################################################
 # INSTANCE
 ############################################################################
@@ -49,7 +47,8 @@ resource "aws_instance" "ubuntu" {
   ami           = data.aws_ami.centos7.id
   instance_type = "t2.micro"
   key_name      = "key_centos"
-  subnet_id     = "${aws_subnet.aws-subnet-private.id}"
+  #vpc_id        = "${aws_vpc.HillelVPC.id}"
+  subnet_id     = aws_subnet.aws-subnet-private.id
   vpc_security_group_ids = ["${aws_security_group.allow_ssh.id}"]
 
   tags = {
