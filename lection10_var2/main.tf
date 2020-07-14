@@ -18,6 +18,7 @@ most_recent = true
   }
 }
 
+
 ############################################################################
 # SECURITY GROUP
 ############################################################################
@@ -75,6 +76,8 @@ resource "aws_security_group" "allow_ssh_http_https" {
   }
 }
 
+
+
 ############################################################################
 # INSTANCE
 ############################################################################
@@ -82,7 +85,7 @@ resource "aws_instance" "centos7" {
   ami           = data.aws_ami.centos7.id
   instance_type = "t2.micro"
   key_name      = "key_centos"
-  subnet_id     = "${aws_subnet.aws-subnet-public-A.id}"
+  subnet_id     = "${aws_subnet.aws-subnet-public.id}"
   vpc_security_group_ids = ["${aws_security_group.allow_ssh_http_https.id}"]
 
   tags = {
