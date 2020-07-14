@@ -19,6 +19,7 @@ data "aws_ami" "ubuntu" {
 resource "aws_security_group" "allow_ssh" {
   name          = "ssh"
   description   = "Allow ssh inbound traffic"
+  vpc_id        = aws_vpc.HillelVPC.id
 
   ingress {
     description = "TLS from VPC"
