@@ -1,91 +1,55 @@
-data "aws_ami" "centos7" {
-owners      = ["679593333241"]
-most_recent = true
+data "aws_ami" "ubuntu" {
+  most_recent = true
 
   filter {
-      name   = "name"
-      values = ["CentOS Linux 7 x86_64 HVM EBS *"]
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-*"]
   }
 
   filter {
-      name   = "architecture"
-      values = ["x86_64"]
+    name   = "virtualization-type"
+    values = ["hvm"]
   }
 
-  filter {
-      name   = "root-device-type"
-      values = ["ebs"]
-  }
+  owners = ["099720109477"] # Canonical
 }
 
 ############################################################################
 # SECURITY GROUP
 ############################################################################
-resource "aws_security_group" "allow_ssh_http_https" {
-  name        = "ssh, http, https"
-  description = "Allow ssh inbound traffic"
+resource "aws_security_group" "ssh_2" {
+  name          = "vpc_private"
+  description   = "Allow ssh inbound traffic"
+  vpc_id        = aws_vpc.HillelVPC.id
 
   ingress {
     description = "TLS from VPC"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  
-  ingress {
-    description = "TLS from VPC"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  
-  ingress {
-    description = "TLS from VPC"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["${var.vpc_cidr}"]
   }
 
   tags = {
-    Name = "ssh, http, https"
+    Name = "ssh_2"
   }
 }
 
 ############################################################################
 # INSTANCE
 ############################################################################
-resource "aws_instance" "centos7" {
-  ami           = data.aws_ami.centos7.id
-  instance_type = "t2.micro"
-  key_name      = "key_centos"
-  subnet_id     = "$var.aws-subnet-public-A}"
-  vpc_security_group_ids = ["${aws_security_group.allow_ssh_http_https.id}"]
 
-  tags = {
-    Name = "Centos full"
-  }
+resource "aws_instance" "ubuntu" {
+    ami                    = data.aws_ami.ubuntu.id
+    availability_zone      = "us-east-1a"
+    instance_type          = "t2.micro"
+    key_name               = "key_centos"
+    subnet_id              = aws_subnet.test-private.id
+    vpc_security_group_ids = ["${aws_security_group.ssh_2.id}"]
+    source_dest_check      = false
+    
+
+    tags = {
+      Name = "Ubuntu"
+    }
 }

@@ -15,37 +15,20 @@ variable "aws-key-name" {
   default = "key_centos"
 }
 
-variable "number_of_instances" {
-    description = "Number of instances to make"
-    default     = "2"
-}
-
 #vpc_cidr - это блок для использования внутри всей VPC
 variable "vpc_cidr" {
     description = "CIDR for the whole VPC"
     default = "10.0.0.0/16"
 }
 
-#vpc_cidr_publicSubnet-A - блок для публичных сервисов (например, для ssh proxy AKA bastion host или балансировщика)
-variable "vpc_cidr_public_subnet_A" {
+#vpc_cidr_publicSubnet - блок для публичных сервисов (например, для ssh proxy AKA bastion host или балансировщика)
+variable "public_subnet" {
     description = "CIDR for the Public subnet"
     default = "10.0.11.0/24"
 }
 
-#vpc_cidr_publicSubnet-B - блок для публичных сервисов (например, для ssh proxy AKA bastion host или балансировщика)
-variable "vpc_cidr_public_subnet_B" {
-    description = "CIDR for the Public subnet"
-    default = "10.0.21.0/24"
-}
-
-#vpc_cidr_privateSubnet-A - это блок для внутренних сервисов (например сервер БД или воркеры с приложениями)
-variable "vpc_cidr_private_subnet_A" {
+#vpc_cidr_privateSubnet - это блок для внутренних сервисов (например сервер БД или воркеры с приложениями)
+variable "private_subnet" {
     description = "CIDR for the Private subnet"
     default = "10.0.12.0/24"
-}
-
-#vpc_cidr_privateSubnet-B - это блок для внутренних сервисов (например сервер БД или воркеры с приложениями)
-variable "vpc_cidr_private_subnet_B" {
-    description = "CIDR for the Private subnet"
-    default = "10.0.22.0/24"
 }

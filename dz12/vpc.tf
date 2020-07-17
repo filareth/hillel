@@ -1,79 +1,167 @@
+data "aws_ami" "centos7" {
+owners       = ["679593333241"]
+most_recent  = true
+
+  filter {
+      name   = "name"
+      values = ["CentOS Linux 7 x86_64 HVM EBS *"]
+  }
+
+  filter {
+      name   = "architecture"
+      values = ["x86_64"]
+  }
+
+  filter {
+      name   = "root-device-type"
+      values = ["ebs"]
+  }
+}
+
+############################################################################
+# CREATE VPC
+############################################################################
 resource "aws_vpc" "HillelVPC" {
-    cidr_block           = "${var.vpc_cidr}"
+    cidr_block           = var.vpc_cidr
     enable_dns_hostnames = true
     tags = {
-        Name        = "Hillel-VPC"
+        Name             = "Hillel-VPC"
     }
 }
 
-## Public subnet
-resource "aws_subnet" "aws-subnet-public-A" {
-  vpc_id            = "${aws_vpc.HillelVPC.id}"
-  cidr_block        = "${var.vpc_cidr_public_subnet_A}"
-  tags = {
-    Name            = "Public subnet-A"
-  }
-}
-
-resource "aws_subnet" "aws-subnet-public-B" {
-  vpc_id            = "${aws_vpc.HillelVPC.id}"
-  cidr_block        = "${var.vpc_cidr_public_subnet_B}"
-  tags = {
-    Name            = "Public subnet-B"
-  }
-}
-
-## Private subnet
-resource "aws_subnet" "aws-subnet-private-A" {
-  vpc_id            = "${aws_vpc.HillelVPC.id}"
-  cidr_block        = "${var.vpc_cidr_private_subnet_A}"
-  tags = {
-    Name            = "Private subnet-A"
-  }
-}
-
-resource "aws_subnet" "aws-subnet-private-B" {
-  vpc_id            = "${aws_vpc.HillelVPC.id}"
-  cidr_block        = "${var.vpc_cidr_private_subnet_B}"
-  tags = {
-    Name            = "Private subnet-B"
-  }
-}
-
-## Internet gateway
+############################################################################
+# CREATE Internet gateway
+############################################################################
 # создает тот самый виртуальный шлюз в интернет внутри VPC
-resource "aws_internet_gateway" "gateway" {
-    vpc_id = "${aws_vpc.HillelVPC.id}"
+resource "aws_internet_gateway" "igw" {
+    vpc_id              = aws_vpc.HillelVPC.id
+    tags = {
+      Name              = "IGW Hillel"
+    }
 }
 
-## Elastic IP for NAT GW
+############################################################################
+# SECURITY GROUP
+############################################################################
+resource "aws_security_group" "nat" {
+  name          = "vpc_nat"
+  description   = "Allow ssh inbound traffic"
+  vpc_id        = aws_vpc.HillelVPC.id
+
+  ingress {
+    description = "TLS from VPC"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
+    tags = {
+    Name = "NAT SG"
+  }
+}
+
+############################################################################
+# CREATE EIP
+############################################################################
 # резервирует статический внешний IP адрес, чтоб наши сервера выходили в интернет всегда с одного адреса
-resource "aws_eip" "eip1" {
-  vpc        = true
-  depends_on = ["aws_internet_gateway.gateway"]
+resource "aws_eip" "nat" {
+  instance      = aws_instance.nat.id
+  vpc           = true
+ 
 }
 
-resource "aws_eip" "eip2" {
-  vpc        = true
-  depends_on = ["aws_internet_gateway.gateway"]
+# -----------------
+#   Public subnet
+# -----------------
+resource "aws_subnet" "test-public" {
+  vpc_id                 = aws_vpc.HillelVPC.id
+
+  cidr_block             = var.public_subnet
+  availability_zone      = "us-east-1a"
+
+  tags = {
+    Name                 = "Public subnet"
+  }
 }
 
-## NAT gateway
+resource "aws_route_table" "test-public" {
+  vpc_id                = aws_vpc.HillelVPC.id
+
+  route {
+        cidr_block      = "0.0.0.0/0"
+        gateway_id      = aws_internet_gateway.igw.id
+    }
+
+  tags = {
+      Name              = "Public subnet"
+  }
+}
+
+resource "aws_route_table_association" "test-public" {
+    subnet_id           = aws_subnet.test-public.id
+    route_table_id      = aws_route_table.test-public.id
+}
+# -----------------
+#  Private subnet
+# -----------------
+
+resource "aws_subnet" "test-private" {
+  vpc_id                 = aws_vpc.HillelVPC.id
+
+  cidr_block             = var.private_subnet
+  availability_zone      = "us-east-1a"
+
+  tags = {
+    Name                 = "Private subnet"
+  }
+}
+
+resource "aws_route_table" "test-private" {
+    vpc_id              = aws_vpc.HillelVPC.id
+
+    route {
+      cidr_block        = "0.0.0.0/0"
+      instance_id       = aws_instance.nat.id
+    }
+
+    tags = {
+        Name            = "Private subnet"
+    }
+}
+
+# ------------------------------------------
+#  Привязка подсетей и таблиц маршрутизации
+# ------------------------------------------
+
+resource "aws_route_table_association" "test-private" {
+    subnet_id           = aws_subnet.test-private.id
+    route_table_id      = aws_route_table.test-private.id
+}
+
+############################################################################
+# NAT gateway
+############################################################################
 # создает NAT шлюз, который будет NAT'ить исходящие соединения (идет привязка к публичной подсети и внешнему IP, он будет создан только после интернет шлюза
-resource "aws_nat_gateway" "nat_a" {
-    allocation_id = "${aws_eip.eip1.id}"
-    subnet_id     = "${aws_subnet.aws-subnet-public-A.id}"
-    depends_on    = ["aws_internet_gateway.gateway"]
-    tags = {
-      Name            = "NAT-A"
-    }
-}
 
-resource "aws_nat_gateway" "nat_b" {
-    allocation_id = "${aws_eip.eip2.id}"
-    subnet_id     = "${aws_subnet.aws-subnet-public-B.id}"
-    depends_on    = ["aws_internet_gateway.gateway"]
-    tags = {
-      Name            = "NAT-B"
-    }
+resource "aws_instance" "nat" {
+  ami                    = data.aws_ami.centos7.id
+  availability_zone      = "us-east-1a"
+  instance_type          = "t2.micro"
+  key_name               = "key_centos"
+  subnet_id              = aws_subnet.test-public.id
+  vpc_security_group_ids = ["${aws_security_group.nat.id}"]
+  associate_public_ip_address = true
+  source_dest_check           = false
+
+  tags = {
+    Name                 = "Centos VPC NAT"
+  }
 }
