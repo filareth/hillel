@@ -1,0 +1,26 @@
+---
+- name: Install packet gnupg2
+  apt: 
+    name: gnupg2 
+    state: present
+- name: install ca-certificates
+  apt: 
+    name: ca-certificates 
+    state: present
+- name: install lsb-release
+  apt: 
+    name: lsb-release 
+    state: present
+- name: add repo
+  shell: echo deb http://nginx.org/packages/mainline/ubuntu bionic nginx | sudo tee /etc/apt/sources.list.d/nginx.list
+- name: add key
+  shell: curl -fsSL https://nginx.org/keys/nginx_signing.key | sudo apt-key add -
+- name: Add an Apt nginx_signing
+  apt_key:
+    id: ABF5BD827BD9BF62 
+    url: https://nginx.org/keys/nginx_signing.key 
+    state: present
+- name: install nginx
+  apt: 
+    name: nginx
+    state: present   

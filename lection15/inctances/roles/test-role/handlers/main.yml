@@ -1,0 +1,6 @@
+---
+# handlers file for test-role
+- name: Reload Nginx
+  service:
+    name: nginx
+    state: reloaded
