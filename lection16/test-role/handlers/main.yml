@@ -1,0 +1,18 @@
+---
+# handlers file for test-role
+- name: start php-fpm
+  service: 
+    name: php-fpm 
+    state: started
+- name: enabled php-fpm
+  service: 
+    name: php-fpm 
+    state: enable
+- name: nginx start
+  service: 
+    name: nginx 
+    state: started
+- name: nginx restart
+  service: 
+    name: nginx 
+    state: restart
