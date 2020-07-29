@@ -1,1 +1,1 @@
-centos ansible_host=52.4.20.219 ansible_user=centos ansible_port=22 ansible_ssh_private_key_file=/home/filareth/.ssh/key_instance.pem
+ubuntu ansible_host=100.26.20.29 ansible_user=ubuntu ansible_port=22 ansible_ssh_private_key_file=/home/filareth/.ssh/key_instance.pem

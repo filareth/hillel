@@ -12,5 +12,5 @@ variable "aws-ec2-type" {
 }
 
 variable "aws-key-name" {
-  default = "key_instance"
+  default = "key_centos"
 }

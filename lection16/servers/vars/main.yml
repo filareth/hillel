@@ -1,0 +1,5 @@
+---
+# vars file for servers
+  server1: '8088'
+  server2: '8188'
+  server3: '8288'

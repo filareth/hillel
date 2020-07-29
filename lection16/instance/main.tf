@@ -1,28 +1,24 @@
-data "aws_ami" "centos7" {
-owners      = ["679593333241"]
-most_recent = true
+data "aws_ami" "ubuntu" {
+  most_recent = true
 
   filter {
-      name   = "name"
-      values = ["CentOS Linux 7 x86_64 HVM EBS *"]
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-*"]
   }
 
   filter {
-      name   = "architecture"
-      values = ["x86_64"]
+    name   = "virtualization-type"
+    values = ["hvm"]
   }
 
-  filter {
-      name   = "root-device-type"
-      values = ["ebs"]
-  }
+  owners = ["099720109477"] # Canonical
 }
 
 ############################################################################
 # SECURITY GROUP
 ############################################################################
 resource "aws_security_group" "allow_ssh" {
-  name        = "ssh, http, https"
+  name        = "all traffic"
   description = "Allow ssh inbound traffic"
 
   ingress {
@@ -70,22 +66,36 @@ resource "aws_security_group" "allow_ssh" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    description = "TLS from VPC"
+    from_port   = 8000
+    to_port     = 9000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   tags = {
-    Name = "ssh, http, https"
+    Name = "all traffic"
   }
 }
 
 ############################################################################
 # INSTANCE
 ############################################################################
-resource "aws_instance" "centos7" {
-  ami           = data.aws_ami.centos7.id
+resource "aws_instance" "web" {
+  ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
   key_name      = "key_instance"
   vpc_security_group_ids = ["${aws_security_group.allow_ssh.id}"]
 
   tags = {
-    Name = "Centos"
+    Name = "Ubuntu"
   }
 }
-
