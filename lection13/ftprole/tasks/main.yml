@@ -1,0 +1,30 @@
+---
+# tasks file for ftprole
+- name: Include OS-specific variables
+  include_vars: "{{ lookup('first_found', params) }}"
+  vars:
+    params:
+      files:
+        - '{{ ansible_distribution }}.yml'
+        - '{{ ansible_os_family }}.yml'
+        - fallback.yml
+      paths:
+        - vars
+  tags:
+    - always
+
+- name: Install YUM packages
+  become: true
+  yum:
+    name: '{{ pyenv_packages }}'
+    state: present
+    update_cache: true
+  when: ansible_of_family == 'RedHat'
+
+- name: Install APT packages
+  become: true
+  apt:
+    name: '{{ pyenv_packages }}'
+    state: present
+    update_cache: true
+  when: ansible_of_family == 'Debian'

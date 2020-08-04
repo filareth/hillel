@@ -1,0 +1,6 @@
+---
+pyenv_packages:
+  - epel-release
+  - gnupg2
+  - ca-certificates
+  - nginx

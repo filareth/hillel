@@ -1,0 +1,5 @@
+---
+pyenv_packages:
+  - gnupg2
+  - ca-certificates
+  - nginx
