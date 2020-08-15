@@ -10,12 +10,17 @@ def test_epel_release(host):
     assert epel-release.is_installed
     assert epel-release.version.latest
 
-def test_vim(host):
-    vim = host.package("vim")
-    assert vim.is_installed
-    assert vim.version.latest
+def test_httpd(host):
+    httpd = host.package("httpd")
+    assert httpd.is_installed
+    assert httpd.version.latest
 
-def test_htop(host):
-    htop = host.package("htop")
-    assert htop.is_installed
-    assert htop.version.latest
+def test_nano(host):
+    nano = host.package("nano")
+    assert nano.is_installed
+    assert nano.version.latest
+
+def test_apache2(host):
+    apache2 = host.package("apache2")
+    assert apache2.is_installed
+    assert apache2.version.latest

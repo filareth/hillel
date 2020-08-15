@@ -6,10 +6,10 @@ driver:
 lint:
   name: yamllint
 platforms:
-  - name: RedHat
+  - name: Debian
     groups:
       - molecule
-    image: ami-b91410c6
+    image: ami-018d4a384e91e09a0
     instance_type: t2.micro
     vpc_subnet_id: subnet-02c842fabb57e1b51
     region: "us-east-1"
@@ -22,3 +22,4 @@ verifier:
   name: testinfra
   lint:
     name: flake8
+    

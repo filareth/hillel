@@ -15,11 +15,6 @@ def test_hosts_file(host):
     assert f.group == 'root'
 
 
-def test_epel_release(host):
-    epelrelease = host.package("epel-release")
-    assert epelrelease.is_installed
-
-
 def test_vim(host):
     vim = host.package("vim")
     assert vim.is_installed

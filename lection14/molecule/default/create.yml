@@ -5,7 +5,7 @@
   gather_facts: false
   no_log: "{{ molecule_no_log }}"
   vars:
-    ssh_user: ubuntu
+    ssh_user: redhat
     ssh_port: 22
 
     security_group_name: molecule

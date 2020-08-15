@@ -1,21 +1,30 @@
 ---
 - hosts: all
   gather_facts: false  
-
   become: yes
 
   vars:
     apps:
     - epel-release
-    - vim
-    - htop
+    - httpd
+    - nano
+    - apache2
 
   tasks:
     - name: Install epel-release
       yum:
         name:   epel-release
         state:  latest
-    - name: Install vim, htop
+      when: ansible_os_family == 'RedHat'
+
+    - name: Install httpd, nano
       yum:
         name:   "{{ apps }}"
         state:  latest
+      when: ansible_os_family == 'RedHat'
+      
+    - name: Install apache2
+      apt: 
+        name: "{{ apps }}"
+        state: latest
+      when: ansible_os_family == 'Debian'
